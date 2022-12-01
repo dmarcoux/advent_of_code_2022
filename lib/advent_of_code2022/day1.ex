@@ -1,6 +1,6 @@
-defmodule AdventOfCode2022 do
+defmodule AdventOfCode2022.Day1 do
   @moduledoc """
-  Documentation for `AdventOfCode2022`.
+  Documentation for `AdventOfCode2022.Day1`.
   """
 
   @doc """
@@ -8,7 +8,7 @@ defmodule AdventOfCode2022 do
 
   ## Examples
 
-      iex> AdventOfCode2022.hello()
+      iex> AdventOfCode2022.Day1.hello()
       :world
 
   """
