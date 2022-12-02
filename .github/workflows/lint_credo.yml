@@ -16,11 +16,26 @@ jobs:
 
       - name: Setup Elixir and OTP
         uses: erlef/setup-beam@v1.15
+        id: setup-beam
         with:
           otp-version: '25'
           elixir-version: '1.14.2'
 
+      - name: Restore dependencies from cache if possible
+        uses: actions/cache@v3
+        id: cache
+        with:
+          path: |
+            deps
+            _build
+          key: mix-${{ runner.os }}-${{ steps.setup-beam.outputs.otp-version }}-${{ steps.setup-beam.outputs.elixir-version }}-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            mix-${{ runner.os }}-${{ steps.setup-beam.outputs.otp-version }}-${{ steps.setup-beam.outputs.elixir-version }}-
+
       - name: Install dependencies
+        # `cache-hit` will be set to 'true' only when cache hit occurs for the exact `key` match defined in the `cache` step.
+        # For a partial key match via `restore-keys` or a cache miss, it will be set to 'false', thus this step will be executed
+        if: steps.cache.outputs.cache-hit != 'true'
         run: mix deps.get
 
       - name: Lint Elixir code, failing on all issues # Credo's strict analysis: https://hexdocs.pm/credo/basic_usage.html#strict-analysis
