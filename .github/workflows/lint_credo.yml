@@ -21,9 +21,12 @@ jobs:
           otp-version: '25'
           elixir-version: '1.14.2'
 
+      # Whenever a cache hit occurs for the exact `key` match defined below, this step sets the `cache-hit` outputs to 'true'.
+      # With `if: steps.cache.outputs.cache-hit != 'true'`, this can be used in steps to run or ignore them based on the cache hit.
+      # A partial key match via `restore-keys` or a cache miss will set `cache-hit` to 'false'.
       - name: Restore dependencies from cache if possible
         uses: actions/cache@v3
-        id: cache
+        id: cache # To expose the `cache-hit` output through `steps.cache.outputs.cache-hit`
         with:
           path: |
             deps
@@ -33,8 +36,6 @@ jobs:
             mix-${{ runner.os }}-${{ steps.setup-beam.outputs.otp-version }}-${{ steps.setup-beam.outputs.elixir-version }}-
 
       - name: Install dependencies
-        # `cache-hit` will be set to 'true' only when cache hit occurs for the exact `key` match defined in the `cache` step.
-        # For a partial key match via `restore-keys` or a cache miss, it will be set to 'false', thus this step will be executed
         if: steps.cache.outputs.cache-hit != 'true'
         run: mix deps.get
 
