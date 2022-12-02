@@ -3,6 +3,8 @@
 Solving the problems from [Advent of Code 2022](https://adventofcode.com/2022)
 with [Elixir](https://elixir-lang.org/).
 
+I use this as an excuse to test new things as I learn Elixir.
+
 ## nix-shell for Elixir
 
 Reproducible development environment for Elixir which relies on
