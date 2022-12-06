@@ -13,5 +13,7 @@ defmodule AdventOfCode2022.Day2Test do
 
     assert AdventOfCode2022.Day2.part_1(example) == 15
     assert AdventOfCode2022.Day2.part_1(input) == 8890
+    assert AdventOfCode2022.Day2.part_2(example) == 12
+    assert AdventOfCode2022.Day2.part_2(input) == 10238
   end
 end
