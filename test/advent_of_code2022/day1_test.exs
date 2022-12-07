@@ -2,7 +2,7 @@ defmodule AdventOfCode2022.Day1Test do
   use ExUnit.Case
   doctest AdventOfCode2022.Day1
 
-  test "calculates the score of a strategy guide" do
+  test "calculates the total calories" do
     example = """
     1000
     2000
