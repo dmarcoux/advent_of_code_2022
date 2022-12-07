@@ -2,7 +2,7 @@ defmodule AdventOfCode2022.Day3Test do
   use ExUnit.Case
   doctest AdventOfCode2022.Day3
 
-  test "calculates the priority of items found in both rucksack compartments" do
+  test "solves the puzzle" do
     example = """
     vJrwpWtwJgWrhcsFMMfFFhFp
     jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL

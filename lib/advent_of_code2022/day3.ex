@@ -7,20 +7,6 @@ defmodule AdventOfCode2022.Day3 do
   Calculate the priority of items found in both rucksack compartments
   """
   def part_1(input) do
-    parse_input(input)
-    |> Enum.reduce(_items_priority = 0, fn {first_compartment, second_compartment},
-                                           items_priority ->
-      [duplicated_item] =
-        List.myers_difference(first_compartment, second_compartment)
-        |> List.keyfind(:eq, 0)
-        |> elem(1)
-        |> Enum.uniq()
-
-      items_priority + item_priority(String.to_charlist(duplicated_item))
-    end)
-  end
-
-  defp parse_input(input) do
     # Create a list of rucksacks
     String.split(input, "\n", trim: true)
     # Create two compartments for every rucksack. The first compartment contains the first half of the rucksack items,
@@ -29,6 +15,17 @@ defmodule AdventOfCode2022.Day3 do
       items_list = String.graphemes(items)
 
       Enum.split(items_list, div(length(items_list), 2))
+    end)
+    # Calculate the priority of items found in both rucksack compartments
+    |> Enum.reduce(_items_priority = 0, fn {first_compartment, second_compartment},
+                                           items_priority ->
+      [duplicated_item] =
+        List.myers_difference(first_compartment, second_compartment)
+        |> Keyword.get_values(:eq)
+        |> List.flatten()
+        |> Enum.uniq()
+
+      items_priority + item_priority(String.to_charlist(duplicated_item))
     end)
   end
 
