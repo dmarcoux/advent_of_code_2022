@@ -29,6 +29,49 @@ defmodule AdventOfCode2022.Day3 do
     end)
   end
 
+  @doc """
+  Calculate the priority of the badges for each three-Elf group. A badge is the only item a group has in common.
+  """
+  def part_2(input) do
+    # Create a list of rucksacks
+    String.split(input, "\n", trim: true)
+    # Group rucksacks in groups of 3
+    |> Enum.chunk_every(3)
+    # Calculate the priority of badges found in all rucksacks of a group
+    |> Enum.reduce(_items_priority = 0, fn [first_rucksack, second_rucksack, third_rucksack],
+                                           items_priority ->
+      duplicated_items_in_first_and_second =
+        MapSet.intersection(
+          MapSet.new(String.graphemes(first_rucksack)),
+          MapSet.new(String.graphemes(second_rucksack))
+        )
+        |> MapSet.to_list()
+
+      duplicated_items_in_second_and_third =
+        MapSet.intersection(
+          MapSet.new(String.graphemes(second_rucksack)),
+          MapSet.new(String.graphemes(third_rucksack))
+        )
+        |> MapSet.to_list()
+
+      duplicated_items_in_first_and_third =
+        MapSet.intersection(
+          MapSet.new(String.graphemes(first_rucksack)),
+          MapSet.new(String.graphemes(third_rucksack))
+        )
+        |> MapSet.to_list()
+
+      {badge, _frequency} =
+        Enum.frequencies(
+          duplicated_items_in_first_and_second ++
+            duplicated_items_in_second_and_third ++ duplicated_items_in_first_and_third
+        )
+        |> Enum.max_by(fn {_char, frequency} -> frequency end)
+
+      items_priority + item_priority(String.to_charlist(badge))
+    end)
+  end
+
   # Lowercase items a through z have priorities ranging from 1 through 26.
   # Uppercase items A through Z have priorities ranging from 27 through 52.
   #
