@@ -75,9 +75,9 @@ defmodule AdventOfCode2022.Day3 do
   # Lowercase items a through z have priorities ranging from 1 through 26.
   # Uppercase items A through Z have priorities ranging from 27 through 52.
   #
-  # In Elixir, a character has a code point which we can use this to determine an item's priority.
+  # In Elixir, a character has a code point which we can use to determine an item's priority.
   # We start at the same priority as defined in the priority ranges above. This is why we need to take the first item
-  # code point and the range start into account. using returning the item's code point would not work.
+  # code point and the range start into account.
   @spec item_priority(charlist()) :: pos_integer()
   defp item_priority([item]) when item in ?a..?z, do: item - ?a + 1
   defp item_priority([item]) when item in ?A..?Z, do: item - ?A + 27
