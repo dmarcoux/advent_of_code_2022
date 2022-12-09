@@ -18,24 +18,27 @@ defmodule AdventOfCode2022.Day5 do
 
   # Retrieve stacks of crates from a puzzle input
   defp stacks_of_crates(puzzle_input) do
-    {[stack_numbers], stacks} =
-      # Remove from the puzzle input everything but the stacks of crates string
+    # Remove from the puzzle input everything but the stacks of crates string
+    {[stack_identifiers], stacks} =
       String.split(puzzle_input, "\n\n")
       |> List.first()
       # Create a list of lines from the stacks of crates string
       |> String.split("\n")
       # Reverse the list of lines to parse the stack of crates from bottom to top
       |> Enum.reverse()
-      # Split the list of lines into two lists, one with the stack numbers and the other with the stacks of crates
+      # Split the list of lines into two lists, one with the stack identifiers and the other with the stacks of crates
       |> Enum.split(1)
 
     IO.inspect(stacks)
-    IO.inspect(stack_numbers)
+    IO.inspect(stack_identifiers)
+
+    # Create a map containing the stacks, each key-value pair representing a stack of crates.
+    # The key is the stack identifier while the value is a list of crates in the stack.
+    String.split(stack_identifiers, " ", trim: true)
+    |> Map.new(fn stack_identifier -> {stack_identifier, []} end)
 
     # pseudo code
     #
-    # find out how many stacks of crates there are (it's possible to tell from the last number on the line with all stack numbers)
-    # create map of lists (each list being a stack) -> Map.new([{:"1", []}, {:"2", []}])
     # add crates to their respective stack starting with the bottom crates -> Probably with Regex
   end
 
