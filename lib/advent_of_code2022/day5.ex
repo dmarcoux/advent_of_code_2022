@@ -7,55 +7,32 @@ defmodule AdventOfCode2022.Day5 do
   Find out which crate ends up on top of each stack
   """
   def part_1(input) do
-    {stack_identifiers, stack_rows} = stack_identifiers_and_rows(input)
-
-    stacks(stack_identifiers)
-    |> IO.inspect()
-
-    crates(stack_rows)
-    |> IO.inspect()
-
-    # TODO: Figure out how to put crates into stacks
-    # # Add the crates to their respective stack, but this doesn't work since it's not changing `stacks` (obviously, this is funcitonal programming...)
-    # crates
-    # |> Enum.with_index()
-    # |> Enum.each(fn {index, crate} ->
-    #   # TODO: skip if crate is an empty string
-    #   Map.get_and_update(stacks, :"#{index}", fn stack_crates ->
-    #     {stack_crates, [crate | stack_crates]}
-    #   end)
-    # end)
-
-    move_instructions(input)
-    |> IO.inspect()
+    stack_rows(input)
+    |> initialize_stacks()
+    |> move_crates(move_instructions(input))
+    |> Enum.reduce("", fn {_stack_identifier, crates}, top_crates ->
+      top_crates <> List.first(crates)
+    end)
   end
 
-  # Retrieve stacks of crates from a puzzle input
-  defp stack_identifiers_and_rows(puzzle_input) do
-    # Remove from the puzzle input everything but the stacks of crates string
-    {[stack_identifiers], stack_rows} =
-      String.split(puzzle_input, "\n\n")
-      |> List.first()
-      # Create a list of lines from the stacks of crates string
-      |> String.split("\n")
-      # Reverse the list of lines to parse the stack of crates from bottom to top
-      |> Enum.reverse()
-      # Split the list of lines into two lists, one with the stack identifiers and the other with the rows of crates forming the stacks
-      |> Enum.split(1)
-
-    # FIXME: There must be a better way to do this, repeating almost the exact same tuple only to get rid of the list for stack_identifiers
-    {stack_identifiers, stack_rows}
+  # Retrieve stack rows from a puzzle input
+  defp stack_rows(puzzle_input) do
+    # Keep only the part of the string which contains the stack identifiers and rows
+    String.split(puzzle_input, "\n\n")
+    |> List.first()
+    # Create a list of lines from the string
+    |> String.split("\n")
+    # Split the list of lines into two lists, one with the stack identifiers and the other with the rows of crates
+    # forming the stacks
+    |> Enum.split(-1)
+    # Keep only the stack rows, the stack identifiers are dropped
+    |> elem(0)
   end
 
   # Create a map containing the stacks, each key-value pair representing a stack of crates.
-  # The key is the stack identifier while the value is an empty list of crates in the stack.
-  defp stacks(stack_identifiers) do
-    String.split(stack_identifiers, " ", trim: true)
-    |> Map.new(fn stack_identifier -> {stack_identifier, []} end)
-  end
-
-  # Create a list containing a nested list of crates
-  defp crates(stack_rows) do
+  # The key is the stack identifier while the value is a list of the crates in the stack.
+  defp initialize_stacks(stack_rows) do
+    # Parse every stack row to retrieve its crates
     Enum.map(stack_rows, fn stack_row ->
       # Every stack row might have a crate on every fourth character starting from the second character
       #
@@ -66,11 +43,22 @@ defmodule AdventOfCode2022.Day5 do
       |> Enum.drop(1)
       |> Enum.take_every(4)
     end)
+    # Group the crates per stack
+    |> List.zip()
+    |> Enum.with_index()
+    |> Map.new(fn {crates, index} ->
+      {
+        "#{index + 1}",
+        # Drop elements which don't refer to an actual crate
+        Tuple.to_list(crates)
+        |> Enum.reject(fn crate -> crate == " " end)
+      }
+    end)
   end
 
   # Retrieve move instructions from a puzzle input
   #
-  # Example output: [%{"destination" => "1", "move_count" => "1", "origin" => "2"}]
+  # Example output: [%{"destination" => "1", "amount" => "1", "origin" => "2"}]
   defp move_instructions(puzzle_input) do
     # Remove from the puzzle input everything but the move instructions string
     String.split(puzzle_input, "\n\n")
@@ -79,9 +67,31 @@ defmodule AdventOfCode2022.Day5 do
     |> String.split("\n", trim: true)
     |> Enum.map(fn move_instruction ->
       Regex.named_captures(
-        ~r/^move (?<move_count>\d+) from (?<origin>\d+) to (?<destination>\d+)$/,
+        ~r/^move (?<amount>\d+) from (?<origin>\d+) to (?<destination>\d+)$/,
         move_instruction
       )
     end)
+  end
+
+  # Move crates from one stack to another recursively
+  defp move_crates(stacks, []), do: stacks
+
+  defp move_crates(stacks, [move]) do
+    crates_in_destination = stacks[move["destination"]]
+
+    {new_crates_in_destination, remaining_crates_in_origin} =
+      Enum.split(stacks[move["origin"]], String.to_integer(move["amount"]))
+
+    %{
+      stacks
+      | "#{move["origin"]}" => remaining_crates_in_origin,
+        "#{move["destination"]}" =>
+          Enum.reverse(new_crates_in_destination) ++ crates_in_destination
+    }
+  end
+
+  defp move_crates(stacks, [move | other_moves]) do
+    move_crates(stacks, [move])
+    |> move_crates(other_moves)
   end
 end
