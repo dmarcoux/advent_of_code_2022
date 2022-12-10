@@ -19,7 +19,7 @@ defmodule AdventOfCode2022.Day5Test do
 
     assert AdventOfCode2022.Day5.part_1(example) == "CMZ"
     assert AdventOfCode2022.Day5.part_1(input) == "WCZTHTMPS"
-    # assert AdventOfCode2022.Day5.part_2(example) == 4
-    # assert AdventOfCode2022.Day5.part_2(input) == 811
+    assert AdventOfCode2022.Day5.part_2(example) == "MCD"
+    assert AdventOfCode2022.Day5.part_2(input) == "BLSGJSDTS"
   end
 end

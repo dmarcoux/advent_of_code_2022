@@ -4,12 +4,26 @@ defmodule AdventOfCode2022.Day5 do
   """
 
   @doc """
-  Find out which crate ends up on top of each stack
+  Find out which crate ends up on top of each stack.
+  In a move instruction, crates are moved one by one.
   """
   def part_1(input) do
     stack_rows(input)
     |> initialize_stacks()
     |> move_crates(move_instructions(input))
+    |> Enum.reduce("", fn {_stack_identifier, crates}, top_crates ->
+      top_crates <> List.first(crates)
+    end)
+  end
+
+  @doc """
+  Find out which crate ends up on top of each stack.
+  In a move instruction, crates are moved together as a group and keep their group order.
+  """
+  def part_2(input) do
+    stack_rows(input)
+    |> initialize_stacks()
+    |> move_crates_group(move_instructions(input))
     |> Enum.reduce("", fn {_stack_identifier, crates}, top_crates ->
       top_crates <> List.first(crates)
     end)
@@ -73,7 +87,7 @@ defmodule AdventOfCode2022.Day5 do
     end)
   end
 
-  # Move crates from one stack to another recursively
+  # Move crates, one by one, from one stack to another recursively
   defp move_crates(stacks, []), do: stacks
 
   defp move_crates(stacks, [move]) do
@@ -93,5 +107,26 @@ defmodule AdventOfCode2022.Day5 do
   defp move_crates(stacks, [move | other_moves]) do
     move_crates(stacks, [move])
     |> move_crates(other_moves)
+  end
+
+  # Move crates, as a group, from one stack to another recursively
+  defp move_crates_group(stacks, []), do: stacks
+
+  defp move_crates_group(stacks, [move]) do
+    crates_in_destination = stacks[move["destination"]]
+
+    {new_crates_in_destination, remaining_crates_in_origin} =
+      Enum.split(stacks[move["origin"]], String.to_integer(move["amount"]))
+
+    %{
+      stacks
+      | "#{move["origin"]}" => remaining_crates_in_origin,
+        "#{move["destination"]}" => new_crates_in_destination ++ crates_in_destination
+    }
+  end
+
+  defp move_crates_group(stacks, [move | other_moves]) do
+    move_crates_group(stacks, [move])
+    |> move_crates_group(other_moves)
   end
 end
