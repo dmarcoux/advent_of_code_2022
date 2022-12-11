@@ -10,10 +10,8 @@ defmodule AdventOfCode2022.Day5 do
   def part_1(input) do
     stack_rows(input)
     |> initialize_stacks()
-    |> move_crates(move_instructions(input))
-    |> Enum.reduce("", fn {_stack_identifier, crates}, top_crates ->
-      top_crates <> List.first(crates)
-    end)
+    |> move_crates(move_instructions(input), &Enum.reverse/1)
+    |> retrieve_top_crates()
   end
 
   @doc """
@@ -23,10 +21,8 @@ defmodule AdventOfCode2022.Day5 do
   def part_2(input) do
     stack_rows(input)
     |> initialize_stacks()
-    |> move_crates_group(move_instructions(input))
-    |> Enum.reduce("", fn {_stack_identifier, crates}, top_crates ->
-      top_crates <> List.first(crates)
-    end)
+    |> move_crates(move_instructions(input), fn crates -> crates end)
+    |> retrieve_top_crates()
   end
 
   # Retrieve stack rows from a puzzle input
@@ -87,10 +83,10 @@ defmodule AdventOfCode2022.Day5 do
     end)
   end
 
-  # Move crates, one by one, from one stack to another recursively
-  defp move_crates(stacks, []), do: stacks
+  # Move crates, with the given function, from one stack to another recursively
+  defp move_crates(stacks, [], _move_function), do: stacks
 
-  defp move_crates(stacks, [move]) do
+  defp move_crates(stacks, [move], move_function) do
     crates_in_destination = stacks[move["destination"]]
 
     {new_crates_in_destination, remaining_crates_in_origin} =
@@ -100,33 +96,19 @@ defmodule AdventOfCode2022.Day5 do
       stacks
       | "#{move["origin"]}" => remaining_crates_in_origin,
         "#{move["destination"]}" =>
-          Enum.reverse(new_crates_in_destination) ++ crates_in_destination
+          move_function.(new_crates_in_destination) ++ crates_in_destination
     }
   end
 
-  defp move_crates(stacks, [move | other_moves]) do
-    move_crates(stacks, [move])
-    |> move_crates(other_moves)
+  defp move_crates(stacks, [move | other_moves], move_function) do
+    move_crates(stacks, [move], move_function)
+    |> move_crates(other_moves, move_function)
   end
 
-  # Move crates, as a group, from one stack to another recursively
-  defp move_crates_group(stacks, []), do: stacks
-
-  defp move_crates_group(stacks, [move]) do
-    crates_in_destination = stacks[move["destination"]]
-
-    {new_crates_in_destination, remaining_crates_in_origin} =
-      Enum.split(stacks[move["origin"]], String.to_integer(move["amount"]))
-
-    %{
-      stacks
-      | "#{move["origin"]}" => remaining_crates_in_origin,
-        "#{move["destination"]}" => new_crates_in_destination ++ crates_in_destination
-    }
-  end
-
-  defp move_crates_group(stacks, [move | other_moves]) do
-    move_crates_group(stacks, [move])
-    |> move_crates_group(other_moves)
+  # Retrieve the top crate of every stack and concat them before they are returned
+  defp retrieve_top_crates(crates) do
+    Enum.reduce(crates, "", fn {_stack_identifier, crates_stack}, all_top_crates ->
+      all_top_crates <> List.first(crates_stack)
+    end)
   end
 end
