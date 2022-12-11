@@ -10,20 +10,41 @@ defmodule AdventOfCode2022.Day6 do
   def part_1(datastream) do
     String.graphemes(datastream)
     |> Enum.with_index()
-    |> Enum.reduce_while(_previous_characters = [], &process_datastream/2)
+    |> Enum.reduce_while(_previous_characters = [], fn character_with_index,
+                                                       previous_characters ->
+      find_first_marker(character_with_index, previous_characters, _marker_length = 4)
+    end)
   end
 
-  # The first start-of-packet marker was found
-  defp process_datastream({_character, index}, previous_characters)
-       when is_list(previous_characters) and length(previous_characters) == 4 do
+  @doc """
+    Return how many characters need to be processed in the datastream before the first start-of-message marker is detected?
+    A start-of-message marker is indicated by a sequence of fourteen characters that are all different.
+  """
+  def part_2(datastream) do
+    String.graphemes(datastream)
+    |> Enum.with_index()
+    |> Enum.reduce_while(_previous_characters = [], fn character_with_index,
+                                                       previous_characters ->
+      find_first_marker(character_with_index, previous_characters, _marker_length = 14)
+    end)
+  end
+
+  # The first marker was found
+  defp find_first_marker({_character, index}, previous_characters, marker_length)
+       when is_list(previous_characters) and length(previous_characters) == marker_length do
     {:halt, index}
   end
 
-  defp process_datastream({character, index}, previous_characters)
-       when is_list(previous_characters) and length(previous_characters) < 4 do
+  defp find_first_marker({character, _index}, previous_characters, marker_length)
+       when is_list(previous_characters) and length(previous_characters) < marker_length do
     if character in previous_characters do
       # Start again...
-      {:cont, [character]}
+      remaining_characters =
+        Enum.take_while(previous_characters, fn previous_character ->
+          previous_character != character
+        end)
+
+      {:cont, [character | remaining_characters]}
     else
       # Keep looking...
       {:cont, [character | previous_characters]}

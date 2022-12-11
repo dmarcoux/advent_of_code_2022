@@ -9,7 +9,7 @@ defmodule AdventOfCode2022.Day6Test do
 
     assert AdventOfCode2022.Day6.part_1(example) == 7
     assert AdventOfCode2022.Day6.part_1(input) == 1175
-    # assert AdventOfCode2022.Day6.part_2(example) == "MCD"
-    # assert AdventOfCode2022.Day6.part_2(input) == "BLSGJSDTS"
+    assert AdventOfCode2022.Day6.part_2(example) == 19
+    assert AdventOfCode2022.Day6.part_2(input) == 3217
   end
 end
